@@ -1,0 +1,18 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Data and models (to avoid pushing large files to GitHub)
+data/
+models/*.pkl
+models/*.csv
+*.csv
+
+# Exceptions (we want to keep the small JSON config files)
+!models/results.json
+!models/features.json

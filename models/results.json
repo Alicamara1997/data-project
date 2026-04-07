@@ -1,0 +1,57 @@
+{
+  "results": {
+    "Linear Regression": {
+      "MAE": 144181.52732416175,
+      "RMSE": 263565.1242016654,
+      "R2": 0.3319795241957125,
+      "MAPE": 70.44863684591446,
+      "training_time": 0.16
+    },
+    "Ridge Regression": {
+      "MAE": 144179.93125212053,
+      "RMSE": 263564.62557271426,
+      "R2": 0.33198205179897666,
+      "MAPE": 70.44777753632616,
+      "training_time": 0.06
+    },
+    "Random Forest": {
+      "MAE": 95757.33249320973,
+      "RMSE": 195118.64415306176,
+      "R2": 0.6338901373861654,
+      "MAPE": 49.25834834446958,
+      "training_time": 104.25
+    },
+    "Gradient Boosting": {
+      "MAE": 100583.5312087442,
+      "RMSE": 200905.45057744515,
+      "R2": 0.6118520219110027,
+      "MAPE": 52.19222260632659,
+      "training_time": 249.56
+    },
+    "XGBoost": {
+      "MAE": 94342.17916207813,
+      "RMSE": 196326.21874299707,
+      "R2": 0.6293444616378452,
+      "MAPE": 48.02139305833129,
+      "training_time": 6.33
+    }
+  },
+  "best_model": "Random Forest",
+  "features": [
+    "surface_sqm",
+    "rooms",
+    "latitude",
+    "longitude",
+    "is_apartment",
+    "is_house",
+    "dept_enc",
+    "region_enc",
+    "dist_paris_km",
+    "dist_coast_km",
+    "is_idf",
+    "log_surface",
+    "month_sin",
+    "month_cos",
+    "year"
+  ]
+}
