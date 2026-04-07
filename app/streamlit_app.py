@@ -89,11 +89,29 @@ def _mtime(path):
 def load_data(_mtime=0):
     p_gz = os.path.join(ROOT,'data','processed','housing_engineered.csv.gz')
     p_csv = os.path.join(ROOT,'data','processed','housing_engineered.csv')
+    df = None
     if os.path.exists(p_gz):
-        return pd.read_csv(p_gz, compression='gzip')
+        df = pd.read_csv(p_gz, compression='gzip')
     elif os.path.exists(p_csv):
-        return pd.read_csv(p_csv)
-    return None
+        df = pd.read_csv(p_csv)
+    
+    if df is not None:
+        # OPTIMISATION MÉMOIRE STREAMLIT CLOUD (1Go limite)
+        
+        # 1. Float64 vers Float32 (Divise par 2 la taille des nombres en RAM)
+        float_cols = df.select_dtypes(include=['float64']).columns
+        df[float_cols] = df[float_cols].astype('float32')
+        
+        # 2. Textes vers Catégories (Réduction massive pour les villes, codes postaux, départements)
+        obj_cols = df.select_dtypes(include=['object']).columns
+        df[obj_cols] = df[obj_cols].astype('category')
+        
+        # 3. Subsampling de protection anti-crash JSON (Max 50 000 lignes)
+        MAX_UI_ROWS = 50000
+        if len(df) > MAX_UI_ROWS:
+            df = df.sample(n=MAX_UI_ROWS, random_state=42).reset_index(drop=True)
+            
+    return df
 
 @st.cache_data(show_spinner=False)
 def load_results(_mtime=0):
