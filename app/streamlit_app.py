@@ -87,8 +87,13 @@ def _mtime(path):
 
 @st.cache_data(show_spinner=False)
 def load_data(_mtime=0):
-    p = os.path.join(ROOT,'data','processed','housing_engineered.csv')
-    return pd.read_csv(p) if os.path.exists(p) else None
+    p_gz = os.path.join(ROOT,'data','processed','housing_engineered.csv.gz')
+    p_csv = os.path.join(ROOT,'data','processed','housing_engineered.csv')
+    if os.path.exists(p_gz):
+        return pd.read_csv(p_gz, compression='gzip')
+    elif os.path.exists(p_csv):
+        return pd.read_csv(p_csv)
+    return None
 
 @st.cache_data(show_spinner=False)
 def load_results(_mtime=0):
@@ -169,7 +174,9 @@ with st.sidebar:
 
 # ── Check données ─────────────────────────────────────────────────────────────
 models_ok = os.path.exists(os.path.join(ROOT,'models','results.json'))
-data_ok   = os.path.exists(os.path.join(ROOT,'data','processed','housing_engineered.csv'))
+data_csv = os.path.join(ROOT,'data','processed','housing_engineered.csv')
+data_gz = os.path.join(ROOT,'data','processed','housing_engineered.csv.gz')
+data_ok = os.path.exists(data_csv) or os.path.exists(data_gz)
 
 if not models_ok or not data_ok:
     st.markdown("""
@@ -188,7 +195,7 @@ if not models_ok or not data_ok:
         if st.button("🚀 Télécharger DVF + Entraîner les modèles"): run_pipeline()
     st.stop()
 
-_mt_csv   = _mtime(os.path.join(ROOT,'data','processed','housing_engineered.csv'))
+_mt_csv = max(_mtime(data_gz), _mtime(data_csv))
 _mt_model = _mtime(os.path.join(ROOT,'models','results.json'))
 
 df       = load_data(_mtime=_mt_csv)
