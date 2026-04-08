@@ -114,6 +114,14 @@ def load_data(_mtime=0):
     return df
 
 @st.cache_data(show_spinner=False)
+def get_city_mapping(_mtime=0):
+    p_gz = os.path.join(ROOT,'data','processed','housing_engineered.csv.gz')
+    p_csv = os.path.join(ROOT,'data','processed','housing_engineered.csv')
+    path = p_gz if os.path.exists(p_gz) else p_csv
+    if not os.path.exists(path): return pd.DataFrame()
+    return pd.read_csv(path, usecols=['department', 'city', 'latitude', 'longitude']).groupby(['department', 'city'], as_index=False).median()
+
+@st.cache_data(show_spinner=False)
 def load_results(_mtime=0):
     p = os.path.join(ROOT,'models','results.json')
     if not os.path.exists(p): return None, None
@@ -622,20 +630,31 @@ with tab4:
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown("### 📍 Localisation")
 
+    city_mapping = get_city_mapping(_mtime=_mt_csv)
+    
     loc1, loc2 = st.columns(2)
-    dept_list = sorted(df['department'].dropna().unique().tolist()) if 'department' in df.columns else []
+    dept_list = sorted(city_mapping['department'].dropna().unique().tolist()) if not city_mapping.empty else []
     sel_dept = loc1.selectbox("Département", dept_list)
 
-    # Valeurs par défaut selon département
-    dept_mask = df['department'] == sel_dept if 'department' in df.columns else pd.Series([True]*len(df))
-    def_lat = float(df.loc[dept_mask,'latitude'].median()) if dept_mask.any() else 46.8
-    def_lon = float(df.loc[dept_mask,'longitude'].median()) if dept_mask.any() else 2.3
+    if not city_mapping.empty:
+        cities_in_dept = sorted(city_mapping[city_mapping['department'] == sel_dept]['city'].dropna().unique().tolist())
+    else:
+        cities_in_dept = []
+    sel_city = loc1.selectbox("Ville", cities_in_dept)
+
     sel_ptype = loc2.selectbox("Type de bien", ['Appartement','Maison'])
 
-    lat_bounds = (max(41.0, def_lat-1.5), min(51.5, def_lat+1.5))
-    lon_bounds = (max(-5.5, def_lon-1.5), min(10.0, def_lon+1.5))
-    latitude  = st.slider("Latitude",  float(lat_bounds[0]), float(lat_bounds[1]), def_lat, 0.01)
-    longitude = st.slider("Longitude", float(lon_bounds[0]), float(lon_bounds[1]), def_lon, 0.01)
+    if not city_mapping.empty and len(cities_in_dept) > 0:
+        city_data = city_mapping[(city_mapping['department'] == sel_dept) & (city_mapping['city'] == sel_city)]
+        if not city_data.empty:
+            latitude = float(city_data['latitude'].iloc[0])
+            longitude = float(city_data['longitude'].iloc[0])
+        else:
+            latitude, longitude = 46.8, 2.3
+    else:
+        latitude, longitude = 46.8, 2.3
+        
+    dept_mask = df['department'] == sel_dept if 'department' in df.columns else pd.Series([True]*len(df))
 
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown("### 🏗️ Caractéristiques du bien")
