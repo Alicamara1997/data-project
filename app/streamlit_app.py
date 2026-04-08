@@ -184,8 +184,8 @@ with st.sidebar:
                     unsafe_allow_html=True)
 
     st.markdown("<hr>", unsafe_allow_html=True)
-    if st.button("🔄 Relancer le pipeline"):
-        st.cache_data.clear(); st.cache_resource.clear(); run_pipeline()
+    # if st.button("🔄 Relancer le pipeline"):
+    #     st.cache_data.clear(); st.cache_resource.clear(); run_pipeline()
     st.markdown("<div style='color:#475569;font-size:.72rem;text-align:center;margin-top:16px'>"
                 "© 2024 ImmoPred AI · France DVF Edition</div>", unsafe_allow_html=True)
 
